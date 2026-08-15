@@ -1,0 +1,36 @@
+import RPi.GPIO as GPIO, time
+GPIO.setmode (GPIO.BCM)
+GPIO.setup(23,GPIO.OUT)
+GPIO.setup(24,GPIO.OUT)
+GPIO.setup(25,GPIO.OUT)
+LDR_PIN=18
+GPIO.setup(LDR_PIN,GPIO.IN)
+def read_ldr():
+  count = 0
+  GPIO.setup(LDR_PIN,GPIO.OUT)
+  GPIO.output (LDR_PIN, False)
+  time.sleep(0.1)
+  GPIO.setup(LDR_PIN,GPIO.IN)
+  while(GPIO.input (LDR_PIN)== GPIO.LOW):
+    count+=1
+  return count
+def avg(samples=5):
+  total = 0
+  for in range(samples):
+    total+= read_ldr()
+  return total//samples
+try:
+  while True:
+    val=avg()
+    print("Lighting level:", val)
+    if val<10:
+      GPIO.output(23, True)
+      GPIO.output (24,False)
+      GPIO.output(25, True)
+    else:
+      GPIO.output (23, False)
+      GPIO.output (24, True)
+      GPIO.output (25, False)
+    time.sleep(0.5)
+except KeyboardInterrupt:
+  GPIO.cleanup()
